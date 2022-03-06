@@ -50,6 +50,7 @@ public class HttpConnector implements IConnector, Runnable {
 		}
 	}
 
+	@SuppressWarnings("resource")
 	@Override
 	public void run() {
 		log.debug("Start HTTP connector thread |%s|", Thread.currentThread());

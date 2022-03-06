@@ -5,7 +5,6 @@ import java.net.URL;
 
 import org.junit.Test;
 
-import js.lang.Callback;
 import js.lang.Event;
 import js.net.client.EventStreamClient;
 
@@ -61,26 +60,16 @@ public class HttpServerTest {
 		HttpServer server = new HttpServer(container, 9999);
 		server.start();
 
-		EventStreamClient client = new EventStreamClient();
-		client.addMapping("Notification", Notification.class);
-		client.open(new URL("http://127.0.0.1:9999/events/test"));
-		client.read(new Callback<Event>() {
-			public void handle(Event event) {
-				//Notification notification = (Notification) event;
-				//System.out.println(notification.getId());
-				
-				System.out.println(event);
-			}
-		});
+		URL eventStreamURL = new URL("http://localhost:8080/echo/server.event");
+		try (EventStreamClient client = new EventStreamClient(eventStreamURL)) {
+			client.addMapping(Notification.class);
+			client.await(event -> System.out.println(event));
 
-		for (int i = 0; i < 100; ++i) {
-			server.pushEvent(new Notification(i));
-			if(i == 10) {
-				client.close();
+			for (int i = 0; i < 100; ++i) {
+				server.pushEvent(new Notification(i));
 			}
 		}
 
 		System.in.read();
-		client.close();
 	}
 }
