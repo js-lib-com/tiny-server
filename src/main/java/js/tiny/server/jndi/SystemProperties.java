@@ -1,9 +1,9 @@
 package js.tiny.server.jndi;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,22 +17,20 @@ import javax.naming.NamingException;
  * @author Iulian Rotaru
  */
 class SystemProperties {
-	private static final String RESOURCE_PATH = "/META-INF/system.properties";
+	private static final String PROPERTIES_PATH = "system.properties";
 
-	private final Map<String, String> properties;
+	private final Properties properties;
 
-	public SystemProperties() throws NamingException {
-		this.properties = new HashMap<>();
+	public SystemProperties(ConfigurationDirectory confDir) throws NamingException {
+		this.properties = new Properties();
 
-		InputStream stream = getClass().getResourceAsStream(RESOURCE_PATH);
-		if (stream == null) {
-			// TODO: discover global JNDI or a registry service deployed on a managed context like application server or
-			// micro-services private cloud
+		File propertiesFile = confDir.getFile(PROPERTIES_PATH);
+		if (propertiesFile == null) {
 			return;
 		}
 
 		String line;
-		try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream, "UTF-8"))) {
+		try (BufferedReader reader = new BufferedReader(new FileReader(propertiesFile))) {
 			while ((line = reader.readLine()) != null) {
 				if (line.isEmpty() || line.startsWith("#")) {
 					continue;
@@ -43,17 +41,16 @@ class SystemProperties {
 					continue;
 				}
 
-				String key = line.substring(0, valueSeparatorPosition).trim();
-				String value = line.substring(valueSeparatorPosition + 1).trim();
-				String systemValue = System.getProperty(key);
-				properties.put(key, systemValue != null ? systemValue : value);
+				final String key = line.substring(0, valueSeparatorPosition).trim();
+				final String value = line.substring(valueSeparatorPosition + 1).trim();
+				properties.put(key, value);
 			}
 		} catch (IOException e) {
-			throw new JndiException("Fail to load system properties from |%s|. Root cause: %s", RESOURCE_PATH, e);
+			throw new JndiException("Fail to load system properties from |%s|. Root cause: %s", propertiesFile, e);
 		}
 	}
 
-	public void forEach(JndiConsumer consumer) throws NamingException {
+	public void forEach(PropertyConsumer consumer) throws NamingException {
 		for (String name : properties.keySet()) {
 			consumer.accept(name, properties.get(name));
 		}
@@ -61,5 +58,36 @@ class SystemProperties {
 
 	public Map<String, String> getProperties() {
 		return properties;
+	}
+
+	private static class Properties extends HashMap<String, String> {
+		private static final long serialVersionUID = -3458641557733720672L;
+
+		@Override
+		public String get(Object keyObject) {
+			if (keyObject == null) {
+				return super.get(keyObject);
+			}
+			final String key = (String) keyObject;
+
+			// db-user -> DB_USER
+			String value = System.getenv(key.replace('-', '_').toUpperCase());
+			if (value != null) {
+				return value;
+			}
+
+			value = System.getProperty(key);
+			if (value != null) {
+				return value;
+			}
+
+			return super.get(key);
+		}
+
+		@Override
+		public String getOrDefault(Object key, String defaultValue) {
+			String value = get(key);
+			return value != null ? value : defaultValue;
+		}
 	}
 }

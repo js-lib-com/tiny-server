@@ -1,5 +1,6 @@
 package js.tiny.server.jndi;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
@@ -9,23 +10,27 @@ import javax.naming.Context;
 import javax.naming.Name;
 import javax.naming.NameAlreadyBoundException;
 import javax.naming.NameClassPair;
-import javax.naming.NameNotFoundException;
 import javax.naming.NameParser;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 
 import js.log.Log;
 import js.log.LogFactory;
+import js.util.Params;
 import js.util.Strings;
 
 public class JndiContext implements Context {
 	private static final Log log = LogFactory.getLog(JndiContext.class);
 
+	private final String contextName;
+	private final ConfigurationDirectory confDir;
 	private final Map<String, Object> bindings;
 
 	private SystemProperties systemProperties;
-	
-	public JndiContext() {
+
+	public JndiContext(String contextName, ConfigurationDirectory confDir) {
+		this.contextName = contextName;
+		this.confDir = confDir;
 		this.bindings = new HashMap<>();
 	}
 
@@ -40,39 +45,51 @@ public class JndiContext implements Context {
 
 	@Override
 	public Object lookup(String name) throws NamingException {
-		if (name.length() > JndiFactory.GLOBAL_ENV.length() && name.startsWith(JndiFactory.GLOBAL_ENV)) {
+		Params.notNullOrEmpty(name, "Name");
+		log.debug("Lookup JNDI |%s|.", name);
+
+		if (name.startsWith(JndiFactory.GLOBAL_ENV)) {
 			Context context = (Context) bindings.get(JndiFactory.GLOBAL_ENV);
+			if (name.length() == JndiFactory.GLOBAL_ENV.length()) {
+				return context;
+			}
 			return context.lookup(name.substring(JndiFactory.GLOBAL_ENV.length() + 1));
 		}
-		
-		if (name.length() > JndiFactory.COMP_ENV.length() && name.startsWith(JndiFactory.COMP_ENV)) {
-			// java:comp/env/server.name -> server.name
-			// java:comp/env/jdbc/db -> jdbc/db
-			String compName = name.substring(JndiFactory.COMP_ENV.length() + 1);
 
-			JndiContext compContext = (JndiContext) bindings.get(JndiFactory.COMP_ENV);
-			Object object = compContext.bindings.get(compName);
-			if (object != null) {
-				return object;
+		if (name.startsWith(JndiFactory.COMP_ENV)) {
+			Context context = (Context) bindings.get(JndiFactory.COMP_ENV);
+			if (name.length() == JndiFactory.COMP_ENV.length()) {
+				return context;
 			}
+			return context.lookup(name.substring(JndiFactory.COMP_ENV.length() + 1));
+		}
 
-			// jdbc/db -> /META-INF/jdbc-db.properties
-			String resourceProperties = Strings.concat("/META-INF/", compName.replace('/', '-').toLowerCase(), ".properties");
-			if (getClass().getResource(resourceProperties) == null) {
-				throw new NameNotFoundException(name);
-			}
-
-			ResourceFactory resourceFactory = new ResourceFactory(compContext.systemProperties, resourceProperties);
-			Object resource = resourceFactory.getResource();
-			compContext.bind(resourceFactory.getName(), resource);
-			return resource;
+		if (name.contains(":")) {
+			throw new JndiException("Unsupported context for JNDI name |%s|.", name);
 		}
 
 		Object object = bindings.get(name);
-		if (object == null) {
-			throw new NameNotFoundException(name);
+		if (object != null) {
+			return object;
 		}
-		return object;
+
+		// at this point we need to create a resource object using properties from configuration directory
+		log.debug("Create resource object |%s|.", name);
+		if (!confDir.exists()) {
+			throw new JndiException("Missing configuration directory. Fail to create resource object for |%s|.", name);
+		}
+
+		// jdbc/db -> jdbc-db.properties
+		String resourceProperties = Strings.concat(name.replace('/', '-').toLowerCase(), ".properties");
+		File resourcePropertiesFile = confDir.getFile(resourceProperties);
+		if (!resourcePropertiesFile.exists()) {
+			throw new JndiException("Missing resource properties |%s|.", resourcePropertiesFile);
+		}
+
+		ResourceFactory resourceFactory = new ResourceFactory(systemProperties, resourcePropertiesFile);
+		Object resource = resourceFactory.getResource();
+		bind(resourceFactory.getName(), resource);
+		return resource;
 	}
 
 	@Override
@@ -155,7 +172,7 @@ public class JndiContext implements Context {
 
 	@Override
 	public Context createSubcontext(String name) throws NamingException {
-		Context context = new JndiContext();
+		Context context = new JndiContext(name, confDir);
 		if (bindings.put(name, context) != null) {
 			throw new NameAlreadyBoundException(name);
 		}
@@ -216,5 +233,10 @@ public class JndiContext implements Context {
 	@Override
 	public String getNameInNamespace() throws NamingException {
 		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public String toString() {
+		return contextName;
 	}
 }

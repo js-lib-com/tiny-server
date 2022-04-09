@@ -1,9 +1,9 @@
 package js.tiny.server.jndi;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -23,22 +23,16 @@ import js.util.Strings;
 public class ResourceFactory {
 	private final Converter converter;
 
-	private final String resourcePath;
+	private final File resourcePropertiesFile;
 	private final Properties properties;
 
-	public ResourceFactory(SystemProperties systemProperties, String resourcePath) throws NamingException {
-		InputStream stream = getClass().getResourceAsStream(resourcePath);
-		if (stream == null) {
-			throw new JndiException("Missing resource properties |%s|.", resourcePath);
-		}
-
+	public ResourceFactory(SystemProperties systemProperties, File resourcePropertiesFile) throws NamingException {
 		this.converter = ConverterRegistry.getConverter();
-
-		this.resourcePath = resourcePath;
+		this.resourcePropertiesFile = resourcePropertiesFile;
 		this.properties = new Properties();
 
 		String line;
-		try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream, "UTF-8"))) {
+		try (BufferedReader reader = new BufferedReader(new FileReader(resourcePropertiesFile))) {
 			while ((line = reader.readLine()) != null) {
 				if (line.isEmpty() || line.startsWith("#")) {
 					continue;
@@ -54,7 +48,7 @@ public class ResourceFactory {
 				properties.put(key, value);
 			}
 		} catch (IOException e) {
-			throw new JndiException("Fail to load resource properties from |%s|. Root cause: %s", resourcePath, e);
+			throw new JndiException("Fail to load resource properties from |%s|. Root cause: %s", resourcePropertiesFile, e);
 		}
 	}
 
@@ -115,12 +109,12 @@ public class ResourceFactory {
 	private String property(String propertyName) throws NamingException {
 		String property = (String) properties.get(propertyName);
 		if (property == null) {
-			throw new JndiException("Missing property |%s| from resource properties |%s|.", propertyName, resourcePath);
+			throw new JndiException("Missing property |%s| from resource properties |%s|.", propertyName, resourcePropertiesFile);
 		}
 		return property.trim();
 	}
 
-	private void properties(JndiConsumer consumer) throws NamingException {
+	private void properties(PropertyConsumer consumer) throws NamingException {
 		for (Object name : properties.keySet()) {
 			if (excludes(name)) {
 				continue;

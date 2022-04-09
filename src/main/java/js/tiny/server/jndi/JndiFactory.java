@@ -17,13 +17,16 @@ public class JndiFactory implements InitialContextFactory {
 		if (initialContext == null) {
 			synchronized (JndiFactory.class) {
 				if (initialContext == null) {
-					initialContext = new JndiContext();
+					ConfigurationDirectory confDir = new ConfigurationDirectory();
+					initialContext = new JndiContext("java:", confDir);
 					initialContext.createSubcontext(GLOBAL_ENV);
 
 					JndiContext compContext = (JndiContext) initialContext.createSubcontext(COMP_ENV);
-					SystemProperties properties = new SystemProperties();
-					compContext.setSystemProperties(properties);
-					properties.forEach((name, value) -> compContext.bind(name, value));
+					if(confDir.exists()) {
+						SystemProperties properties = new SystemProperties(confDir);
+						compContext.setSystemProperties(properties);
+						properties.forEach((name, value) -> compContext.bind(name, value));
+					}
 				}
 			}
 		}
