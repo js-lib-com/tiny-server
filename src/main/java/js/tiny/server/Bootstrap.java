@@ -18,8 +18,6 @@ public class Bootstrap {
 		}
 
 		try {
-			Bootstrap bootstrap = new Bootstrap();
-
 			for (int i = 1; i < arguments.length; ++i) {
 				String argument = arguments[i];
 				int beginIndex = 0;
@@ -40,6 +38,7 @@ public class Bootstrap {
 				System.setProperty(key, value);
 			}
 
+			Bootstrap bootstrap = new Bootstrap();
 			switch (arguments[0]) {
 			case "start":
 				bootstrap.start();
@@ -57,15 +56,22 @@ public class Bootstrap {
 		}
 	}
 
+	private final int port;
+
+	private Bootstrap() {
+		String port = System.getProperty("port");
+		this.port = port != null ? Integer.parseInt(port) : DEFAULT_PORT;
+	}
+
 	private void start() {
-		TinyServer server = new TinyServer(DEFAULT_PORT);
+		TinyServer server = new TinyServer(port);
 		Runtime.getRuntime().addShutdownHook(new ShutdownHook(server));
 		server.run();
 	}
 
 	private void stop() throws IOException {
 		try {
-			URL url = new URL("http://127.0.0.1:9999/rest/manager/shutdown");
+			URL url = new URL(String.format("http://127.0.0.1:%d/rest/manager/shutdown", port));
 			HttpURLConnection con = (HttpURLConnection) url.openConnection();
 			con.setConnectTimeout(STOP_CONNECTION_TIMEOUT);
 			con.setRequestMethod("POST");
@@ -76,7 +82,7 @@ public class Bootstrap {
 	}
 
 	private void run() throws IOException, InterruptedException {
-		TinyServer server = new TinyServer(DEFAULT_PORT);
+		TinyServer server = new TinyServer(port);
 
 		Thread thread = new Thread(server);
 		thread.setDaemon(true);
