@@ -23,16 +23,16 @@ import js.util.Strings;
 public class ResourceFactory {
 	private final Converter converter;
 
-	private final File resourcePropertiesFile;
+	private final File propertiesFile;
 	private final Properties properties;
 
-	public ResourceFactory(SystemProperties systemProperties, File resourcePropertiesFile) throws NamingException {
+	public ResourceFactory(Variables variables, File propertiesFile) throws NamingException {
 		this.converter = ConverterRegistry.getConverter();
-		this.resourcePropertiesFile = resourcePropertiesFile;
+		this.propertiesFile = propertiesFile;
 		this.properties = new Properties();
 
 		String line;
-		try (BufferedReader reader = new BufferedReader(new FileReader(resourcePropertiesFile))) {
+		try (BufferedReader reader = new BufferedReader(new FileReader(propertiesFile))) {
 			while ((line = reader.readLine()) != null) {
 				if (line.isEmpty() || line.startsWith("#")) {
 					continue;
@@ -44,11 +44,11 @@ public class ResourceFactory {
 				}
 
 				String key = line.substring(0, valueSeparatorPosition).trim();
-				String value = Strings.injectVariables(line.substring(valueSeparatorPosition + 1).trim(), systemProperties.getProperties());
+				String value = Strings.injectVariables(line.substring(valueSeparatorPosition + 1).trim(), variables.getProperties());
 				properties.put(key, value);
 			}
 		} catch (IOException e) {
-			throw new JndiException("Fail to load resource properties from |%s|. Root cause: %s", resourcePropertiesFile, e);
+			throw new JndiException("Fail to load resource properties from |%s|. Root cause: %s", propertiesFile, e);
 		}
 	}
 
@@ -109,7 +109,7 @@ public class ResourceFactory {
 	private String property(String propertyName) throws NamingException {
 		String property = (String) properties.get(propertyName);
 		if (property == null) {
-			throw new JndiException("Missing property |%s| from resource properties |%s|.", propertyName, resourcePropertiesFile);
+			throw new JndiException("Missing property |%s| from resource properties |%s|.", propertyName, propertiesFile);
 		}
 		return property.trim();
 	}

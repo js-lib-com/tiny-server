@@ -23,18 +23,18 @@ public class JndiContext implements Context {
 	private static final Log log = LogFactory.getLog(JndiContext.class);
 
 	private final String contextName;
-	private final ConfigurationDirectory confDir;
+	private final ConfigDir configDir;
 	private final Map<String, Object> bindings;
 
-	private SystemProperties systemProperties;
+	private Variables systemProperties;
 
-	public JndiContext(String contextName, ConfigurationDirectory confDir) {
+	public JndiContext(String contextName, ConfigDir configDir) {
 		this.contextName = contextName;
-		this.confDir = confDir;
+		this.configDir = configDir;
 		this.bindings = new HashMap<>();
 	}
 
-	public void setSystemProperties(SystemProperties systemProperties) {
+	public void setSystemProperties(Variables systemProperties) {
 		this.systemProperties = systemProperties;
 	}
 
@@ -75,13 +75,13 @@ public class JndiContext implements Context {
 
 		// at this point we need to create a resource object using properties from configuration directory
 		log.debug("Create resource object |%s|.", name);
-		if (!confDir.exists()) {
+		if (!configDir.exists()) {
 			throw new JndiException("Missing configuration directory. Fail to create resource object for |%s|.", name);
 		}
 
 		// jdbc/db -> jdbc-db.properties
 		String resourceProperties = Strings.concat(name.replace('/', '-').toLowerCase(), ".properties");
-		File resourcePropertiesFile = confDir.getFile(resourceProperties);
+		File resourcePropertiesFile = configDir.getFile(resourceProperties);
 		if (!resourcePropertiesFile.exists()) {
 			throw new JndiException("Missing resource properties |%s|.", resourcePropertiesFile);
 		}
@@ -172,7 +172,7 @@ public class JndiContext implements Context {
 
 	@Override
 	public Context createSubcontext(String name) throws NamingException {
-		Context context = new JndiContext(name, confDir);
+		Context context = new JndiContext(name, configDir);
 		if (bindings.put(name, context) != null) {
 			throw new NameAlreadyBoundException(name);
 		}

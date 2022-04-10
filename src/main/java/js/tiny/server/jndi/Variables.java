@@ -16,37 +16,41 @@ import javax.naming.NamingException;
  * 
  * @author Iulian Rotaru
  */
-class SystemProperties {
-	private static final String PROPERTIES_PATH = "system.properties";
+class Variables {
+	private static final String SYSTEM_PROPERTIES = "system.properties";
+	private static final String EJB_PROPERTIES = "ejb.properties";
+	private static final String[] PROPERTIES_FILES = new String[] { SYSTEM_PROPERTIES, EJB_PROPERTIES };
 
 	private final Properties properties;
 
-	public SystemProperties(ConfigurationDirectory confDir) throws NamingException {
+	public Variables(ConfigDir configDir) throws NamingException {
 		this.properties = new Properties();
 
-		File propertiesFile = confDir.getFile(PROPERTIES_PATH);
-		if (propertiesFile == null) {
-			return;
-		}
-
-		String line;
-		try (BufferedReader reader = new BufferedReader(new FileReader(propertiesFile))) {
-			while ((line = reader.readLine()) != null) {
-				if (line.isEmpty() || line.startsWith("#")) {
-					continue;
-				}
-
-				int valueSeparatorPosition = line.indexOf('=');
-				if (valueSeparatorPosition == -1 || valueSeparatorPosition == line.length() - 1) {
-					continue;
-				}
-
-				final String key = line.substring(0, valueSeparatorPosition).trim();
-				final String value = line.substring(valueSeparatorPosition + 1).trim();
-				properties.put(key, value);
+		for (String propertiesFileName : PROPERTIES_FILES) {
+			File propertiesFile = configDir.getFile(propertiesFileName);
+			if (propertiesFile == null) {
+				continue;
 			}
-		} catch (IOException e) {
-			throw new JndiException("Fail to load system properties from |%s|. Root cause: %s", propertiesFile, e);
+
+			String line;
+			try (BufferedReader reader = new BufferedReader(new FileReader(propertiesFile))) {
+				while ((line = reader.readLine()) != null) {
+					if (line.isEmpty() || line.startsWith("#")) {
+						continue;
+					}
+
+					int valueSeparatorPosition = line.indexOf('=');
+					if (valueSeparatorPosition == -1 || valueSeparatorPosition == line.length() - 1) {
+						continue;
+					}
+
+					final String key = line.substring(0, valueSeparatorPosition).trim();
+					final String value = line.substring(valueSeparatorPosition + 1).trim();
+					properties.put(key, value);
+				}
+			} catch (IOException e) {
+				throw new JndiException("Fail to load system properties from |%s|. Root cause: %s", propertiesFile, e);
+			}
 		}
 	}
 

@@ -17,15 +17,16 @@ public class JndiFactory implements InitialContextFactory {
 		if (initialContext == null) {
 			synchronized (JndiFactory.class) {
 				if (initialContext == null) {
-					ConfigurationDirectory confDir = new ConfigurationDirectory();
-					initialContext = new JndiContext("java:", confDir);
+					ConfigDir configDir = new ConfigDir();
+
+					initialContext = new JndiContext("java:", configDir);
 					initialContext.createSubcontext(GLOBAL_ENV);
 
 					JndiContext compContext = (JndiContext) initialContext.createSubcontext(COMP_ENV);
-					if(confDir.exists()) {
-						SystemProperties properties = new SystemProperties(confDir);
-						compContext.setSystemProperties(properties);
-						properties.forEach((name, value) -> compContext.bind(name, value));
+					if(configDir.exists()) {
+						Variables variables = new Variables(configDir);
+						compContext.setSystemProperties(variables);
+						variables.forEach((name, value) -> compContext.bind(name, value));
 					}
 				}
 			}
