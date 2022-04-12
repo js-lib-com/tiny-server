@@ -9,10 +9,11 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletConfig;
@@ -107,8 +108,9 @@ public class TinyServer implements Runnable {
 		ServletContextEvent event = new ServletContextEvent(servletContext);
 		contextListener.contextInitialized(event);
 
-		ThreadFactory threadFactory = r -> new Thread(r, "Request Thread");
-		ExecutorService executor = Executors.newCachedThreadPool(threadFactory);
+		final AtomicLong threadIndex = new AtomicLong();
+		final ThreadFactory threadFactory = runnable -> new Thread(runnable, "Request Thread #" + threadIndex.getAndIncrement());
+		ThreadPoolExecutor executor = new ThreadPoolExecutor(1, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>(), threadFactory);
 
 		running = true;
 		for (;;) {

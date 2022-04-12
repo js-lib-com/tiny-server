@@ -4,8 +4,8 @@ import java.io.FileNotFoundException;
 
 import javax.servlet.Servlet;
 
-import js.tiny.container.net.HttpRmiServlet;
 import js.tiny.container.rest.RestServlet;
+import js.tiny.container.rmi.HttpRmiServlet;
 
 public class ServletFactory {
 	public Servlet createServlet(String requestURI) throws FileNotFoundException {
