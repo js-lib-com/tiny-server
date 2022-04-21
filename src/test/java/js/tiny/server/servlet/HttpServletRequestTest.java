@@ -8,14 +8,14 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import javax.servlet.ServletContext;
-import javax.servlet.http.Cookie;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.Cookie;
 
 @RunWith(MockitoJUnitRunner.class)
 public class HttpServletRequestTest {

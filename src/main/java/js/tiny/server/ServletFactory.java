@@ -2,8 +2,7 @@ package js.tiny.server;
 
 import java.io.FileNotFoundException;
 
-import javax.servlet.Servlet;
-
+import jakarta.servlet.Servlet;
 import js.tiny.container.rest.RestServlet;
 import js.tiny.container.rmi.HttpRmiServlet;
 

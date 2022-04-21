@@ -11,17 +11,16 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import javax.servlet.Filter;
-import javax.servlet.FilterRegistration;
-import javax.servlet.RequestDispatcher;
-import javax.servlet.Servlet;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRegistration;
-import javax.servlet.ServletRegistration.Dynamic;
-import javax.servlet.SessionCookieConfig;
-import javax.servlet.SessionTrackingMode;
-import javax.servlet.descriptor.JspConfigDescriptor;
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterRegistration;
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.Servlet;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRegistration;
+import jakarta.servlet.SessionCookieConfig;
+import jakarta.servlet.SessionTrackingMode;
+import jakarta.servlet.descriptor.JspConfigDescriptor;
 
 public class ServletContextImpl implements ServletContext {
 	private final Map<String, Object> attributes;
@@ -184,17 +183,17 @@ public class ServletContextImpl implements ServletContext {
 	}
 
 	@Override
-	public Dynamic addServlet(String servletName, String className) {
+	public ServletRegistration.Dynamic addServlet(String servletName, String className) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public Dynamic addServlet(String servletName, Servlet servlet) {
+	public ServletRegistration.Dynamic addServlet(String servletName, Servlet servlet) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public Dynamic addServlet(String servletName, Class<? extends Servlet> servletClass) {
+	public ServletRegistration.Dynamic addServlet(String servletName, Class<? extends Servlet> servletClass) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -214,17 +213,17 @@ public class ServletContextImpl implements ServletContext {
 	}
 
 	@Override
-	public javax.servlet.FilterRegistration.Dynamic addFilter(String filterName, String className) {
+	public FilterRegistration.Dynamic addFilter(String filterName, String className) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public javax.servlet.FilterRegistration.Dynamic addFilter(String filterName, Filter filter) {
+	public FilterRegistration.Dynamic addFilter(String filterName, Filter filter) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public javax.servlet.FilterRegistration.Dynamic addFilter(String filterName, Class<? extends Filter> filterClass) {
+	public FilterRegistration.Dynamic addFilter(String filterName, Class<? extends Filter> filterClass) {
 		throw new UnsupportedOperationException();
 	}
 

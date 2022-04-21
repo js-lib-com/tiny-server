@@ -8,7 +8,7 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
-import javax.servlet.http.Cookie;
+import jakarta.servlet.http.Cookie;
 
 class Headers {
 	public static final String ACCEPT_LANGUAGE = "Accept-Language";
