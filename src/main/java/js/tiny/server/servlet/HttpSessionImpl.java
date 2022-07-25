@@ -9,6 +9,7 @@ import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.HttpSessionContext;
 
+@SuppressWarnings("deprecation")
 public class HttpSessionImpl implements HttpSession {
 	private final String ID;
 	private final long creationTime;

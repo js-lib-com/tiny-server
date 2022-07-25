@@ -18,6 +18,7 @@ import jakarta.servlet.Servlet;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRegistration;
+import jakarta.servlet.ServletRegistration.Dynamic;
 import jakarta.servlet.SessionCookieConfig;
 import jakarta.servlet.SessionTrackingMode;
 import jakarta.servlet.descriptor.JspConfigDescriptor;
@@ -299,6 +300,41 @@ public class ServletContextImpl implements ServletContext {
 
 	@Override
 	public String getVirtualServerName() {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Dynamic addJspFile(String servletName, String jspFile) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public int getSessionTimeout() {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public void setSessionTimeout(int sessionTimeout) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public String getRequestCharacterEncoding() {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public void setRequestCharacterEncoding(String encoding) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public String getResponseCharacterEncoding() {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public void setResponseCharacterEncoding(String encoding) {
 		throw new UnsupportedOperationException();
 	}
 }
