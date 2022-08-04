@@ -4,8 +4,8 @@ import java.io.File;
 
 import javax.naming.NamingException;
 
-import js.log.Log;
-import js.log.LogFactory;
+import com.jslib.api.log.Log;
+import com.jslib.api.log.LogFactory;
 
 /**
  * Directory holding application configuration files. Configuration files can be retrieved via relative path using

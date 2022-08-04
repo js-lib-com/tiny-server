@@ -5,8 +5,8 @@ import java.io.InterruptedIOException;
 import java.io.PrintWriter;
 import java.io.Writer;
 
-import js.log.Log;
-import js.log.LogFactory;
+import com.jslib.api.log.Log;
+import com.jslib.api.log.LogFactory;
 
 class PrintWriterEx extends PrintWriter {
 	private static final Log log = LogFactory.getLog(PrintWriterEx.class);
