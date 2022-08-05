@@ -2,8 +2,8 @@ package com.jslib.tiny.server;
 
 import java.io.FileNotFoundException;
 
-import com.jslib.tiny.container.rest.RestServlet;
-import com.jslib.tiny.container.rmi.HttpRmiServlet;
+import com.jslib.container.rest.RestServlet;
+import com.jslib.container.rmi.HttpRmiServlet;
 
 import jakarta.servlet.Servlet;
 
