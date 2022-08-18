@@ -91,7 +91,7 @@ public class TinyServer implements Runnable {
 	@SuppressWarnings("resource")
 	@Override
 	public void run() {
-		log.debug("Start HTTP connector thread |%s|", Thread.currentThread());
+		log.debug("Start HTTP connector thread |{thread}|", Thread.currentThread());
 
 		ServerSocket serverSocket;
 		try {
@@ -99,10 +99,10 @@ public class TinyServer implements Runnable {
 			serverSocket.bind(new InetSocketAddress(InetAddress.getByName("0.0.0.0"), port));
 		} catch (IOException e) {
 			log.error(e);
-			log.debug("Error creating sync socket. Stop HTTP connector thread |%s|.", Thread.currentThread());
+			log.debug("Error creating sync socket. Stop HTTP connector thread |{thread}|.", Thread.currentThread());
 			return;
 		}
-		log.debug("Listen on |%s:%d| for HTTP requests.", serverSocket.getInetAddress().getHostAddress(), port);
+		log.debug("Listen on |{server_host}:{server_port}| for HTTP requests.", serverSocket.getInetAddress().getHostAddress(), port);
 
 		ServletContextEvent event = new ServletContextEvent(servletContext);
 		contextListener.contextInitialized(event);
@@ -147,7 +147,7 @@ public class TinyServer implements Runnable {
 	private void service(Socket socket) {
 		log.trace("service(Socket)");
 		String remoteAddress = socket.getRemoteSocketAddress().toString();
-		log.debug("Remote address: %s", remoteAddress);
+		log.debug("Remote address: {remote_host}", remoteAddress);
 		LogFactory.getLogContext().put("ip", remoteAddress);
 
 		HttpServletRequest request = null;
@@ -162,7 +162,7 @@ public class TinyServer implements Runnable {
 			requestListener.requestInitialized(requestEvent);
 
 			for (Cookie cookie : request.getCookies()) {
-				log.debug("Cookie: %s: %s", cookie.getName(), cookie.getValue());
+				log.debug("Cookie: {cookie_name}: {cookie_value}", cookie.getName(), cookie.getValue());
 			}
 
 			response = new HttpServletResponseImpl(request, socket.getOutputStream());
@@ -196,7 +196,7 @@ public class TinyServer implements Runnable {
 
 		// at this point request is guaranteed to be initialized
 		// if request initialization fails for some reason there is exception that does return
-		log.info("Request %s processed in %.02f msec.", request.getRequestURI(), (System.nanoTime() - start) / 1000000.0);
+		log.info("Request {http_request} processed in {processing_time} msec.", request.getRequestURI(), (System.nanoTime() - start) / 1000000.0);
 	}
 
 	// ---------------------------------------------------------------------------------------------

@@ -297,7 +297,7 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 		for (Cookie cookie : cookies) {
 			write("Set-Cookie: ");
 			write(Headers.formatCookie(cookie));
-			log.debug("Set-Cookie: %s", Headers.formatCookie(cookie));
+			log.debug("Set-Cookie: {cookies}", Headers.formatCookie(cookie));
 			write(CRLF);
 		}
 

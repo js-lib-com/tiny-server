@@ -46,7 +46,7 @@ public class JndiContext implements Context {
 	@Override
 	public Object lookup(String name) throws NamingException {
 		Params.notNullOrEmpty(name, "Name");
-		log.debug("Lookup JNDI |%s|.", name);
+		log.debug("Lookup JNDI |{jndi_name}|.", name);
 
 		if (name.startsWith(JndiFactory.GLOBAL_ENV)) {
 			Context context = (Context) bindings.get(JndiFactory.GLOBAL_ENV);
@@ -74,7 +74,7 @@ public class JndiContext implements Context {
 		}
 
 		// at this point we need to create a resource object using properties from configuration directory
-		log.debug("Create resource object |%s|.", name);
+		log.debug("Create resource object |{jndi_path}|.", name);
 		if (!configDir.exists()) {
 			throw new JndiException("Missing configuration directory. Fail to create resource object for |%s|.", name);
 		}
@@ -102,7 +102,7 @@ public class JndiContext implements Context {
 		if (bindings.put(name, object) != null) {
 			throw new NameAlreadyBoundException(name);
 		}
-		log.debug("Bind JNDI name |%s| to |%s|.", name, object);
+		log.debug("Bind JNDI name |{jndi_path}| to |{value}|.", name, object);
 	}
 
 	@Override
@@ -176,7 +176,7 @@ public class JndiContext implements Context {
 		if (bindings.put(name, context) != null) {
 			throw new NameAlreadyBoundException(name);
 		}
-		log.debug("Create JNDI subcontext |%s|.", name);
+		log.debug("Create JNDI subcontext |{jndi_context}|.", name);
 		return context;
 	}
 

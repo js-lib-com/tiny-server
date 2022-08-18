@@ -108,7 +108,7 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 			existingValues.addAll(values);
 		}
 
-		log.debug("Request URI: %s", requestURI);
+		log.debug("Request URI: {http_request}", requestURI);
 		if (this.queryString != null) {
 			for (String pair : this.queryString.split("&")) {
 				final int valueSeparatorPosition = pair.indexOf("=");
@@ -371,13 +371,13 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 				for (String nameValuePair : Strings.split(cookiesList, ';')) {
 					int valueSeparatorPosition = nameValuePair.indexOf('=');
 					if (valueSeparatorPosition == -1) {
-						log.debug("Invalid cookie name-value pair |%s|. Ignore it.", nameValuePair);
+						log.debug("Invalid cookie name-value pair |{cookie_value}|. Ignore it.", nameValuePair);
 						continue;
 					}
 					final String name = nameValuePair.substring(0, valueSeparatorPosition).trim();
 					final String value = valueSeparatorPosition < nameValuePair.length() ? nameValuePair.substring(valueSeparatorPosition + 1) : "";
 					if (SessionManager.SESSION_COOKIE.equals(name)) {
-						log.debug("Session ID on cookie: %s", value);
+						log.debug("Session ID on cookie: {cookie_session}", value);
 						this.sessionID = value;
 					}
 					cookies.add(new Cookie(name, value));

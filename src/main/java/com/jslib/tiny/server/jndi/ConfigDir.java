@@ -26,7 +26,7 @@ class ConfigDir {
 
 	public ConfigDir() throws NamingException {
 		String confDirProperty = System.getProperty(CONFIG_DIR);
-		log.debug("Configuration directory: %s", confDirProperty);
+		log.debug("Configuration directory: {file_path}", confDirProperty);
 		if (confDirProperty == null) {
 			configDir = null;
 			return;
